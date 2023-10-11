@@ -1,9 +1,8 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			todos: [
-				
-			],
+			todos: [],
+			input: '',
 			nextKey: 0
 		},
 		actions: {
@@ -24,13 +23,44 @@ const getState = ({ getStore, getActions, setStore }) => {
 			setToDos: (toDos) => {
 				setStore({todos: toDos})
 			},
-			addToDo: () => {
+			updateToDosAPI: () => {
+				fetch('https://playground.4geeks.com/apis/fake/todos/user/jdurtka', {
+					method: "PUT",
+					body: JSON.stringify(getStore().todos),
+					headers: {
+						"Content-Type": "application/json"
+					}
+					})
+					.then(resp => {
+						if(!resp.ok) {
+							throw new Error ('error occurred',resp.status)
+						}
+						console.log(resp.json()); 
+					})
+					.catch(error => {
+						console.log(error);
+					});
+					
+				},
+			addToDo: (e) => {
+				if(e.key === 'Enter') {
+					if(getStore().input !== '') {
+						getActions().setToDos(getStore().todos.concat([{done: false, label: getStore().input, id:getStore().nextKey}]))
+						getActions().setInput('')
+						getActions().setNextKey(Math.max.apply(Math, getStore().todos.map((item) => item.id )) + 1);
+						getActions().updateToDosAPI()
+					}
+				}
 			},
 			deleteToDo: (e) => {
-				setToDos(toDos.filter(item => item.id != e.target.parentNode.id))
+				setStore({todos: (getStore().todos.filter(item => item.id != e.target.parentNode.id))})
+				getActions().updateToDosAPI()
 			},
-			setNextKey: (nextKey) => {
-				setStore({key: nextKey})
+			setNextKey: (key) => {
+				setStore({nextKey: key})
+			},
+			setInput: (newInput) => {
+				setStore({input: newInput})
 			}
 		}
 	};

@@ -23,9 +23,9 @@ const injectContext = PassedComponent => {
 
 		useEffect(() => {
 			const asyncFunc = async () => {
-				const toDoList = await actions.getToDos()
-				actions.setNextKey(Math.max.apply(Math, toDoList.map((item) => item.id )) + 1)
-				actions.setToDos(toDoList)	
+				const toDoList = await state.actions.getToDos()
+				await state.actions.setToDos(toDoList)
+				state.actions.setNextKey(Math.max.apply(Math, state.store.todos.map((item) => item.id )) + 1)
 			}
 			asyncFunc()
 		}, []);
